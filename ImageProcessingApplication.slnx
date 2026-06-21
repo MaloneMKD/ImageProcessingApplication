@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="./ImageProcessingApplication/ImageProcessingApplication.vcxproj" Id="53d993ef-32a6-489d-8aa2-9d99edf6b515">
+    <Deploy />
+  </Project>
+</Solution>
