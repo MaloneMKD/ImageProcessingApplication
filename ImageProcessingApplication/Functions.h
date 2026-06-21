@@ -2,43 +2,49 @@
 
 #include "Image.h"
 
+#include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+
 class Functions
 {
 public:
 	static Image readImage(const char fname[]);
-	static void merge(Image& im1, Image& im2);
-	static void logicAnd(Image& im1, Image& im2);
-	static void logicNand(Image& im1, Image& im2);
-	static void logicOr(Image& im1, Image& im2);
-	static void logicXor(Image& im1, Image& im2);
-	static void addition(Image& im1, Image& im2);
-	static void subtraction(Image& im1, Image& im2);
-	static void multiplication(Image& im, int factor);
+	static winrt::Windows::Foundation::IAsyncAction merge(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction logicAnd(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction logicNand(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction logicOr(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction logicXor(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction addition(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction subtraction(Image& im1, Image& im2, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction multiplication(Image& im, Image& imOut, int factor);
 
-	static void displayRgb(Image& im);
-	static void displayGray(Image& im);
-	static void linearContrast(Image& im);
-	static void histogramEqualization(Image& im);
+	static winrt::Windows::Foundation::IAsyncAction linearContrast(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction histogramEqualization(Image& im, Image& imOut);
 	static int  calculateContrast(Image& im);
-	static void luminance(Image& im);
-	static void gaussFilter(Image& im);
-	static void smoothingFilter(Image& im);
-	static void sharpen(Image& im);
-	static void edgeDetect(Image& im);
-	static void robertFilter(Image& im);
-	static void prewittFilter(Image& im);
-	static void sobelFilter(Image& im);
-	static void laplacienConvo(Image& im);
-	static void erosion(Image& im);
+	static winrt::Windows::Foundation::IAsyncAction luminance(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction gaussFilter(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction smoothingFilter(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction sharpen(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction edgeDetect(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction robertFilter(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction prewittFilter(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction sobelFilter(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction laplacienConvo(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction erosion(Image& im, Image& imOut);
 
-	static void hFlip(Image& im);
-	static void vFlip(Image& im);
-	static void rRotate(Image& im);
-	static void lRotate(Image& im);
+	static winrt::Windows::Foundation::IAsyncAction hFlip(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction vFlip(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction rRotate(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction lRotate(Image& im, Image& imOut);
+	static winrt::Windows::Foundation::IAsyncAction otsuBinarization(Image& im, Image& imOut, int& thresholdOut);
 
-	static void brightness(Image& im, int level);
-	static void filtering(Image& im, double r, double g, double b);
-	static void linearContrastSaturation(Image& im, int sMin, int sMax);
-	static void scalingNN(Image& im, double xscale, double yscale);
+	static winrt::Windows::Foundation::IAsyncAction brightness(Image& im, Image& imOut, int level);
+	static winrt::Windows::Foundation::IAsyncAction filtering(Image& im, Image& imOut, double r, double g, double b);
+	static winrt::Windows::Foundation::IAsyncAction linearContrastSaturation(Image& im, Image& imOut, int sMin, int sMax);
+	static winrt::Windows::Foundation::IAsyncAction scalingNN(Image& im, Image& imOut, double xscale, double yscale);
+
+private:
+	static int getOtsuBinarizationThreshold(Image& im);
+	static void thresholdVal(int threshold, Image& im, Image& outImg);
 };
 

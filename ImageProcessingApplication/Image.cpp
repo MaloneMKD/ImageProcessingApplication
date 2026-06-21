@@ -14,6 +14,20 @@ Image::Image(int numRows, int numCols, int depth): m_rows(numRows), m_cols(numCo
 	m_pixelDataRGB.resize(m_rows * m_cols * m_depth, 0);
 }
 
+void Image::initialize(int numRows, int numCols, int depth)
+{
+	// Save meta data
+	m_rows = numRows;
+	m_cols = numCols;
+	m_depth = depth;
+
+	// Clear and resize all
+	m_pixelData.clear();
+	m_pixelDataRGB.clear();
+	m_pixelData.resize(m_rows * m_cols, 0);
+	m_pixelDataRGB.resize(m_rows * m_cols * m_depth, 0);
+}
+
 uint8_t Image::getPixelVal(int row, int col)
 {
 	int index = (row * m_cols) + col;

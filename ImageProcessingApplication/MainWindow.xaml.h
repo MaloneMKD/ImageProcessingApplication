@@ -2,6 +2,8 @@
 
 #include "MainWindow.g.h"
 
+#include "Image.h"
+
 namespace winrt::ImageProcessingApplication::implementation
 {
     struct MainWindow : MainWindowT<MainWindow>
@@ -20,6 +22,9 @@ namespace winrt::ImageProcessingApplication::implementation
 		bool m_bLoaded = false; 
         bool m_bTwoImageInput = true;
 
+        Image m_image1;
+        Image m_image2;
+
         // Private Functions
         void HideControls();
         winrt::Windows::Foundation::IAsyncAction DisplayOutputImage(std::vector<uint8_t>& outputPixelData, int width, int height, int depth);
@@ -32,7 +37,7 @@ namespace winrt::ImageProcessingApplication::implementation
         void ShowInputImages_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void ShowInputImages_Unchecked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void MainGrid_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        void ProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        winrt::Windows::Foundation::IAsyncAction ProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 

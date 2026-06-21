@@ -9,6 +9,8 @@ public:
 	Image();
 	Image(int numRows, int numCols, int depth);
 
+	void initialize(int numRows, int numCols, int depth);
+
 	// Getters and Setters
 	uint8_t getPixelVal(int row, int col);
 	void setPixelVal(int row, int col, uint8_t val);
