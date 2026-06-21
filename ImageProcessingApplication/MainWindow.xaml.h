@@ -22,8 +22,7 @@ namespace winrt::ImageProcessingApplication::implementation
 
         // Private Functions
         void HideControls();
-        void Process();
-        void DisplayOutputImage(std::vector<uint8_t>& outputPixelData, int width, int height, int depth);
+        winrt::Windows::Foundation::IAsyncAction DisplayOutputImage(std::vector<uint8_t>& outputPixelData, int width, int height, int depth);
         winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::StorageFile> ShowFileDialog();
     public:
         // Event handlers
@@ -33,6 +32,7 @@ namespace winrt::ImageProcessingApplication::implementation
         void ShowInputImages_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void ShowInputImages_Unchecked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void MainGrid_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void ProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 

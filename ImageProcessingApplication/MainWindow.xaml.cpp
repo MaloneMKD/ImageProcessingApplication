@@ -7,6 +7,7 @@
 #include "Functions.h"
 
 #include <Shobjidl.h>
+#include <wil/win32_helpers.h>
 #include <microsoft.ui.xaml.window.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Pickers.h>
@@ -14,7 +15,6 @@
 #include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
 
 using namespace winrt;
-using namespace Microsoft::UI::Xaml;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -188,7 +188,151 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::HideControls
 	}
 }
 
-void winrt::ImageProcessingApplication::implementation::MainWindow::Process()
+winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::implementation::MainWindow::DisplayOutputImage(std::vector<uint8_t>& outputPixelData, int width, int height, int depth)
+{
+	auto strongRef = get_strong();
+	winrt::Microsoft::UI::Xaml::Media::Imaging::WriteableBitmap bitmap(width, height);
+	winrt::Windows::Storage::Streams::IBuffer buffer = bitmap.PixelBuffer();
+	auto data = buffer.data();
+
+	// Show loading indicator and update UI
+	BusyText().Text(L"Processing Output Image...");
+	LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+
+	co_await winrt::resume_background();
+	// ============================ BACKGROUND THREAD ============================
+
+	// Copy pixel data to WriteableBitmap
+	if (depth == 3) // RGB
+	{
+		for (int i = 0; i < width * height; ++i)
+		{
+			data[i * 4 + 0] = outputPixelData[i * 3 + 2];   // B
+			data[i * 4 + 1] = outputPixelData[i * 3 + 1];	// G
+			data[i * 4 + 2] = outputPixelData[i * 3 + 0];	// R
+			data[i * 4 + 3] = 255;							// A
+		}
+	}
+	else if (depth == 1) // Grayscale
+	{
+		for (int i = 0; i < width * height; ++i)
+		{
+			uint8_t grayValue = outputPixelData[i];
+			data[i * 4 + 0] = grayValue; // B
+			data[i * 4 + 1] = grayValue; // G
+			data[i * 4 + 2] = grayValue; // R
+			data[i * 4 + 3] = 255;       // A
+		}
+	}
+
+	co_await wil::resume_foreground(this->DispatcherQueue());
+	// ============================ UI THREAD ============================
+
+	// Hide loading indicator
+	BusyText().Text(L"");
+	LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+
+	bitmap.Invalidate();
+	OutputImage().Source(bitmap);
+}
+
+winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::StorageFile> winrt::ImageProcessingApplication::implementation::MainWindow::ShowFileDialog()
+{
+	auto picker = winrt::Windows::Storage::Pickers::FileOpenPicker();
+	picker.ViewMode(winrt::Windows::Storage::Pickers::PickerViewMode::Thumbnail);
+	picker.SuggestedStartLocation(winrt::Windows::Storage::Pickers::PickerLocationId::PicturesLibrary);
+	picker.FileTypeFilter().Append(L".jpg");
+	picker.FileTypeFilter().Append(L".png");
+	picker.as<IInitializeWithWindow>()->Initialize(GetActiveWindow());
+
+	if (winrt::Windows::Storage::StorageFile file = co_await picker.PickSingleFileAsync())
+		co_return file;
+	co_return nullptr;
+}
+
+winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::implementation::MainWindow::BrowseFilesButton1_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	winrt::Windows::Storage::StorageFile file = co_await ShowFileDialog();
+	if (file)
+	{
+		// Show loading indicator and update UI
+		co_await wil::resume_foreground(this->DispatcherQueue());
+		BusyText().Text(L"Loading Input...");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+
+		// Open the file as a stream
+		winrt::Windows::Storage::Streams::IRandomAccessStream stream = co_await file.OpenAsync(winrt::Windows::Storage::FileAccessMode::Read);
+		winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage bitmapImage;
+		co_await bitmapImage.SetSourceAsync(stream);
+		Input1Image().Source(bitmapImage);
+		FileName1_textbox().Text(file.Name());
+
+		auto image = Functions::readImage(winrt::to_string(file.Path()).c_str());
+		co_await DisplayOutputImage(image.m_pixelData, image.m_cols, image.m_rows, 1);
+
+		// Hide loading indicator
+		BusyText().Text(L"");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+	}
+}
+
+winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::implementation::MainWindow::BrowseFilesButton2_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	winrt::Windows::Storage::StorageFile file = co_await ShowFileDialog();
+	if (file)
+	{
+		// Show loading indicator and update UI
+		co_await wil::resume_foreground(this->DispatcherQueue());
+		BusyText().Text(L"Loading Input...");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+
+		// Open the file as a stream
+		winrt::Windows::Storage::Streams::IRandomAccessStream stream = co_await file.OpenAsync(winrt::Windows::Storage::FileAccessMode::Read);
+		winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage bitmapImage;
+		co_await bitmapImage.SetSourceAsync(stream);
+		Input2Image().Source(bitmapImage);
+		FileName2_textBox().Text(file.Name());
+
+		// Hide loading indicator
+		BusyText().Text(L"");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+	}
+}
+
+void winrt::ImageProcessingApplication::implementation::MainWindow::ShowInputImages_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	if (m_bLoaded)
+	{
+		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+
+		if (m_bTwoImageInput)
+		{
+			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		}
+	}
+}
+
+void winrt::ImageProcessingApplication::implementation::MainWindow::ShowInputImages_Unchecked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	if (m_bLoaded)
+	{
+		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+		Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+	}
+}
+
+void winrt::ImageProcessingApplication::implementation::MainWindow::MainGrid_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	m_bLoaded = true;
+}
+
+void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
 	// Reveal controls for specific processes
 	winrt::hstring selectedProcess = ProcessComboBox().SelectedItem().as<winrt::Microsoft::UI::Xaml::Controls::ComboBoxItem>().Content().as<winrt::hstring>();;
@@ -305,114 +449,4 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::Process()
 	{
 
 	}
-}
-
-void winrt::ImageProcessingApplication::implementation::MainWindow::DisplayOutputImage(std::vector<uint8_t>& outputPixelData, int width, int height, int depth)
-{
-	winrt::Microsoft::UI::Xaml::Media::Imaging::WriteableBitmap bitmap(width, height);
-	// Copy pixel data to WriteableBitmap
-	winrt::Windows::Storage::Streams::IBuffer buffer = bitmap.PixelBuffer();
-	auto data = buffer.data();
-
-	if (depth == 3) // RGB
-	{
-		for (int i = 0; i < width * height; ++i)
-		{
-			data[i * 4 + 0] = outputPixelData[i * 3 + 2];   // B
-			data[i * 4 + 1] = outputPixelData[i * 3 + 1];	// G
-			data[i * 4 + 2] = outputPixelData[i * 3 + 0];	// R
-			data[i * 4 + 3] = 255;							// A
-		}
-	}
-	else if (depth == 1) // Grayscale
-	{
-		for (int i = 0; i < width * height; ++i)
-		{
-			uint8_t grayValue = outputPixelData[i];
-			data[i * 4 + 0] = grayValue; // B
-			data[i * 4 + 1] = grayValue; // G
-			data[i * 4 + 2] = grayValue; // R
-			data[i * 4 + 3] = 255;       // A
-		}
-	}
-	bitmap.Invalidate();
-	OutputImage().Source(bitmap);
-}
-
-winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::StorageFile> winrt::ImageProcessingApplication::implementation::MainWindow::ShowFileDialog()
-{
-	auto picker = winrt::Windows::Storage::Pickers::FileOpenPicker();
-	picker.ViewMode(winrt::Windows::Storage::Pickers::PickerViewMode::Thumbnail);
-	picker.SuggestedStartLocation(winrt::Windows::Storage::Pickers::PickerLocationId::PicturesLibrary);
-	picker.FileTypeFilter().Append(L".jpg");
-	picker.FileTypeFilter().Append(L".png");
-	picker.as<IInitializeWithWindow>()->Initialize(GetActiveWindow());
-
-	if (winrt::Windows::Storage::StorageFile file = co_await picker.PickSingleFileAsync())
-		co_return file;
-	co_return nullptr;
-}
-
-winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::implementation::MainWindow::BrowseFilesButton1_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-	winrt::Windows::Storage::StorageFile file = co_await ShowFileDialog();
-	if (file)
-	{
-		// Open the file as a stream
-		winrt::Windows::Storage::Streams::IRandomAccessStream stream = co_await file.OpenAsync(winrt::Windows::Storage::FileAccessMode::Read);
-		winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage bitmapImage;
-		co_await bitmapImage.SetSourceAsync(stream);
-		Input1Image().Source(bitmapImage);
-		FileName1_textbox().Text(file.Name());
-
-		auto image = Functions::readImage(winrt::to_string(file.Path()).c_str());
-		DisplayOutputImage(image.m_pixelData, image.m_cols, image.m_rows, 1);
-	}
-}
-
-winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::implementation::MainWindow::BrowseFilesButton2_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-	winrt::Windows::Storage::StorageFile file = co_await ShowFileDialog();
-	if (file)
-	{
-		// Open the file as a stream
-		winrt::Windows::Storage::Streams::IRandomAccessStream stream = co_await file.OpenAsync(winrt::Windows::Storage::FileAccessMode::Read);
-		winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage bitmapImage;
-		co_await bitmapImage.SetSourceAsync(stream);
-		Input2Image().Source(bitmapImage);
-		FileName2_textBox().Text(file.Name());
-	}
-}
-
-void winrt::ImageProcessingApplication::implementation::MainWindow::ShowInputImages_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-	if (m_bLoaded)
-	{
-		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-
-		if (m_bTwoImageInput)
-		{
-			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		}
-	}
-}
-
-void winrt::ImageProcessingApplication::implementation::MainWindow::ShowInputImages_Unchecked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-	if (m_bLoaded)
-	{
-		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
-		Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
-	}
-}
-
-void winrt::ImageProcessingApplication::implementation::MainWindow::MainGrid_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-	m_bLoaded = true;
 }
