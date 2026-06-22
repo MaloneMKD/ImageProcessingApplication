@@ -43,6 +43,10 @@ public:
 	static winrt::Windows::Foundation::IAsyncAction linearContrastSaturation(Image& im, Image& imOut, int sMin, int sMax);
 	static winrt::Windows::Foundation::IAsyncAction scalingNN(Image& im, Image& imOut, double xscale, double yscale);
 
+	// Error reporting
+	bool m_bError = false;
+	winrt::hstring m_errorString = L"";
+
 private:
 	static int getOtsuBinarizationThreshold(Image& im);
 	static void thresholdVal(int threshold, Image& im, Image& outImg);

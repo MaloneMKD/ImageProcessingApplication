@@ -21,6 +21,14 @@ namespace winrt::ImageProcessingApplication::implementation
         // Private Variables
 		bool m_bLoaded = false; 
         bool m_bTwoImageInput = true;
+        
+        enum DISPLAY_DEPTH
+        {
+            GRAYSCALE,
+            RGB
+        };
+
+        DISPLAY_DEPTH m_displayDepth = DISPLAY_DEPTH::RGB;
 
         Image m_image1;
         Image m_image2;

@@ -320,7 +320,7 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ShowInputIma
 		if (m_bTwoImageInput)
 		{
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1.0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 	}
 }
@@ -348,6 +348,7 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 
 	// Reveal controls for specific processes
 	winrt::hstring selectedProcess = ProcessComboBox().SelectedItem().as<winrt::Microsoft::UI::Xaml::Controls::ComboBoxItem>().Content().as<winrt::hstring>();
+	m_displayDepth = DISPLAY_DEPTH::RGB; // RGB default
 
 	// Show loading indicator and update UI
 	co_await wil::resume_foreground(this->DispatcherQueue());
@@ -361,30 +362,37 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Logic AND")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::logicAnd(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Logic OR")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::logicOr(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Logic XOR")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::logicXor(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Logic NAND")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::logicNand(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Addition")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::addition(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Subtraction")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::subtraction(m_image1, m_image2, imgOut);
 	}
 	else if (selectedProcess == L"Multiplication")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		int factor = static_cast<int>(std::stoi(winrt::to_string(NumberInput1().Text())));
 		co_await Functions::multiplication(m_image1, imgOut, factor);
 	}
@@ -457,18 +465,11 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 		int threshold;
 		co_await Functions::otsuBinarization(m_image1, imgOut, threshold);
 		co_await wil::resume_foreground(this->DispatcherQueue());
-
-		// Hide loading indicator
-		BusyText().Text(L"");
-		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 
 		// Update status text
 		StatusText().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 		StatusText().Text(L"Threshold: " + winrt::to_hstring(threshold));
-
-		// Display output image
-		DisplayOutputImage(imgOut.m_pixelData, imgOut.m_cols, imgOut.m_rows, 1);
-		co_return;
 	}
 	else if (selectedProcess == L"Brightness")
 	{
@@ -512,5 +513,8 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 
 	// Display output image
-	DisplayOutputImage(imgOut.m_pixelDataRGB, imgOut.m_cols, imgOut.m_rows, imgOut.m_depth);
+	if(m_displayDepth == DISPLAY_DEPTH::RGB)
+		DisplayOutputImage(imgOut.m_pixelDataRGB, imgOut.m_cols, imgOut.m_rows, imgOut.m_depth);
+	else if(m_displayDepth == DISPLAY_DEPTH::GRAYSCALE)
+		DisplayOutputImage(imgOut.m_pixelData, imgOut.m_cols, imgOut.m_rows, 1);
 }

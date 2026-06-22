@@ -48,31 +48,151 @@ winrt::Windows::Foundation::IAsyncAction Functions::merge(Image& im1, Image& im2
 
 winrt::Windows::Foundation::IAsyncAction Functions::logicAnd(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = binImg1.getPixelVal(i, j) && binImg2.getPixelVal(i, j);
+			int val = (pixel == 1) ? 255 : 0; // 255 && 255 = 1 and 255 && 0 = 0
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::logicNand(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = !(binImg1.getPixelVal(i, j) && binImg2.getPixelVal(i, j));
+			int val = (pixel == 1) ? 255 : 0; // 255 && 255 = 1 and 255 && 0 = 0
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::logicOr(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = binImg1.getPixelVal(i, j) || binImg2.getPixelVal(i, j);
+			int val = (pixel == 1) ? 255 : 0; // 255 && 255 = 1 and 255 && 0 = 0
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::logicXor(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = (binImg1.getPixelVal(i, j) && !(binImg2.getPixelVal(i, j))) || (binImg2.getPixelVal(i, j) && !(binImg1.getPixelVal(i, j)));
+			int val = (pixel == 1) ? 255 : 0; // 255 && 255 = 1 and 255 && 0 = 0
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::addition(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = binImg1.getPixelVal(i, j) + binImg2.getPixelVal(i, j);
+			int val = min(pixel, 255);
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::subtraction(Image& im1, Image& im2, Image& imOut)
 {
+	// Images must have the same depth rows and columns
+	if (im1.m_depth != im2.m_depth || im1.m_rows != im2.m_rows || im1.m_cols != im2.m_cols)
+		co_return;
+
+	int pixel = 0;
+	int threshold = 0;
+	Image binImg1, binImg2;
+	otsuBinarization(im1, binImg1, threshold);
+	otsuBinarization(im2, binImg2, threshold);
+	imOut.initialize(im1.m_rows, im1.m_cols, im1.m_depth);
+
+	for (int i = 0; i < im1.m_rows; i++)
+	{
+		for (int j = 0; j < im1.m_cols; j++)
+		{
+			pixel = binImg1.getPixelVal(i, j) - binImg2.getPixelVal(i, j);
+			int val = max(pixel, 0);
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
