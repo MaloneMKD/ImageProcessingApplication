@@ -53,12 +53,14 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = true;
     }
-	else if (selectedProcess == L"Linear Contrast" || selectedProcess == L"Calculate Contrast" || selectedProcess == L"Luminance" || selectedProcess == L"Gauss Filter" ||
+	else if (selectedProcess == L"Linear Contrast" || selectedProcess == L"Gauss Filter" || selectedProcess == L"Histogram Equalization" ||
 		     selectedProcess == L"Smoothing Filter" || selectedProcess == L"Sharpen" || selectedProcess == L"Edge Detect" || selectedProcess == L"Robert Filter" || 
 		     selectedProcess == L"Prewitt Filter" || selectedProcess == L"Sobel Filter" || selectedProcess == L"Laplace Convolution" || selectedProcess == L"Erosion" ||
 		     selectedProcess == L"H-Flip" || selectedProcess == L"V-Flip" || selectedProcess == L"R-Rotate" || selectedProcess == L"L-Rotate" || 
@@ -71,10 +73,22 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
+	}
+	else if (selectedProcess == L"Calculate Contrast" || selectedProcess == L"Luminance")
+	{
+		FileInput1Panel().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+		OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 	}
 	else if (selectedProcess == L"Brightness")
 	{
@@ -88,8 +102,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
 	}
@@ -105,8 +121,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
 	}
@@ -126,8 +144,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
 	}
@@ -145,8 +165,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
 	}
@@ -164,8 +186,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 		{
 			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		}
 		m_bTwoImageInput = false;
 	}
@@ -187,8 +211,10 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::HideControls
 	{
 		Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 		Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+		OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 		ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 		ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
+		ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
 	}
 }
 
@@ -355,6 +381,7 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	BusyText().Text(L"Processing: " + selectedProcess);
 	LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 	co_await 10ms;
+	co_await wil::resume_foreground(this->DispatcherQueue());
 
 	if (selectedProcess == L"Merge")
 	{
@@ -398,15 +425,35 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Linear Contrast")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::linearContrast(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Calculate Contrast")
 	{
 		result = Functions::calculateContrast(m_image1);
+
+		// Hide loading indicator
+		BusyText().Text(L"");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+
+		// Update status text
+		StatusText().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		StatusText().Text(L"Contrast: " + winrt::to_hstring(result));
+		co_return;
 	}
 	else if (selectedProcess == L"Luminance")
 	{
-		co_await Functions::luminance(m_image1, imgOut);
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
+		int result =  Functions::luminance(m_image1);
+
+		// Hide loading indicator
+		BusyText().Text(L"");
+		LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+
+		// Update status text
+		StatusText().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		StatusText().Text(L"Luminance: " + winrt::to_hstring(result));
+		co_return;
 	}
 	else if (selectedProcess == L"Gauss Filter")
 	{
@@ -415,6 +462,11 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	else if (selectedProcess == L"Smoothing Filter")
 	{
 		co_await Functions::smoothingFilter(m_image1, imgOut);
+	}
+	else if (selectedProcess == L"Histogram Equalization")
+	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
+		co_await Functions::histogramEqualization(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Sharpen")
 	{
@@ -462,10 +514,10 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Otsu Binarization")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		int threshold;
 		co_await Functions::otsuBinarization(m_image1, imgOut, threshold);
 		co_await wil::resume_foreground(this->DispatcherQueue());
-		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 
 		// Update status text
 		StatusText().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
@@ -473,6 +525,7 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Brightness")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		int level = static_cast<int>(std::stoi(winrt::to_string(NumberInput1().Text())));
 		co_await Functions::brightness(m_image1, imgOut, level);
 	}
@@ -485,14 +538,15 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Linear Contrast Saturation")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		int smin = static_cast<int>(std::stoi(winrt::to_string(NumberInput1().Text())));
 		int smax = static_cast<int>(std::stoi(winrt::to_string(NumberInput2().Text())));
 		co_await Functions::linearContrastSaturation(m_image1, imgOut, smin, smax);
 	}
 	else if (selectedProcess == L"ScalingNN")
 	{
-		int scaleX = static_cast<int>(std::stoi(winrt::to_string(NumberInput1().Text())));	
-		int scaleY = static_cast<int>(std::stoi(winrt::to_string(NumberInput2().Text())));
+		float scaleX = std::stof(winrt::to_string(NumberInput1().Text()));	
+		float scaleY = std::stof(winrt::to_string(NumberInput2().Text()));
 		co_await Functions::scalingNN(m_image1, imgOut, scaleX, scaleY);
 	}
 
@@ -501,16 +555,6 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	// Hide loading indicator
 	BusyText().Text(L"");
 	LoadingGrid().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
-
-	// Display the contrast output if selected process 
-	if (selectedProcess == L"Calculate Contrast")
-	{
-		winrt::Microsoft::UI::Xaml::Controls::ContentDialog dialog;
-		dialog.Title(winrt::box_value<hstring>(L"Contrast"));
-		dialog.Content(winrt::box_value<hstring>(L"Contrast = " + winrt::to_hstring(result)));
-		co_await dialog.ShowAsync();
-		co_return;
-	}
 
 	// Display output image
 	if(m_displayDepth == DISPLAY_DEPTH::RGB)

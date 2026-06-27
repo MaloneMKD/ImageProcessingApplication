@@ -2,6 +2,7 @@
 
 #include "MainWindow.g.h"
 
+#include <winrt/Microsoft.UI.Windowing.h>
 #include "Image.h"
 
 namespace winrt::ImageProcessingApplication::implementation
@@ -10,8 +11,9 @@ namespace winrt::ImageProcessingApplication::implementation
     {
         MainWindow()
         {
-            // Xaml objects should not call InitializeComponent during construction.
-            // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
+            // Maximize window
+            auto presenter = this->AppWindow().Presenter().as<winrt::Microsoft::UI::Windowing::OverlappedPresenter>();
+            presenter.Maximize();
         }
 
         int32_t MyProperty();

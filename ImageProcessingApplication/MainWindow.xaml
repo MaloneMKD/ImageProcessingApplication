@@ -44,6 +44,7 @@
                     <ComboBoxItem>Luminance</ComboBoxItem>
                     <ComboBoxItem>Gauss Filter</ComboBoxItem>
                     <ComboBoxItem>Smoothing Filter</ComboBoxItem>
+                    <ComboBoxItem>Histogram Equalization</ComboBoxItem>
                     <ComboBoxItem>Sharpen</ComboBoxItem>
                     <ComboBoxItem>Edge Detect</ComboBoxItem>
                     <ComboBoxItem>Robert Filter</ComboBoxItem>

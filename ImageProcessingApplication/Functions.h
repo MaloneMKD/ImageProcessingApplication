@@ -21,7 +21,7 @@ public:
 	static winrt::Windows::Foundation::IAsyncAction linearContrast(Image& im, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction histogramEqualization(Image& im, Image& imOut);
 	static int  calculateContrast(Image& im);
-	static winrt::Windows::Foundation::IAsyncAction luminance(Image& im, Image& imOut);
+	static int luminance(Image& im);
 	static winrt::Windows::Foundation::IAsyncAction gaussFilter(Image& im, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction smoothingFilter(Image& im, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction sharpen(Image& im, Image& imOut);

@@ -6,7 +6,7 @@
 
 #include <string>
 #include <filesystem>
-
+#include <numeric>
 
 Image Functions::readImage(const char fname[])
 {
@@ -203,22 +203,79 @@ winrt::Windows::Foundation::IAsyncAction Functions::multiplication(Image& im, Im
 
 winrt::Windows::Foundation::IAsyncAction Functions::linearContrast(Image& im, Image& imOut)
 {
+	imOut.initialize(im.m_rows, im.m_cols, im.m_depth);
+
+	int mini = *std::min_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	int maxi = *std::max_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	int pixel = 0;
+	int val = 0;
+
+	for (int i = 0; i < im.m_rows; i++)
+	{
+		for (int j = 0; j < im.m_cols; j++)
+		{
+			pixel = im.getPixelVal(i, j);
+			val = 255 * (pixel - mini) / (maxi - mini);
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::histogramEqualization(Image& im, Image& imOut)
 {
+	imOut.initialize(im.m_rows, im.m_cols, im.m_depth);
+
+	int totalPixels = im.m_pixelData.size();
+	int max = 255;
+
+	// Get histogram	
+	std::vector<float> histogram(256, 0);
+	for (int i = 0; i < im.m_pixelData.size(); i++)
+		histogram[im.m_pixelData[i]]++;
+
+	// Get Probability Distribution Function
+	std::vector<float> pdf(histogram.size(), 0);
+	for (int i = 0; i < histogram.size(); i++)
+		pdf[i] = histogram[i] / totalPixels;
+
+	// Get Cumulative Distrinution Function and LUT
+	std::vector<float> cdf(histogram.size());
+	std::vector<float> LUT(histogram.size());
+	cdf[0] = pdf[0];
+	imOut.m_pixelData[0] = pdf[0];
+
+	for (int i = 1; i < histogram.size(); i++)
+	{
+		cdf[i] = cdf[i - 1] + pdf[i];
+		LUT[i] = std::round(cdf[i] * max);
+	}
+
+	// Apply LUT to image
+	for (int i = 0; i < im.m_rows; i++)
+	{
+		for (int j = 0; j < im.m_cols; j++)
+			imOut.setPixelVal(i, j, LUT[im.getPixelVal(i, j)]);
+	}
+
 	co_return;
 }
 
 int Functions::calculateContrast(Image& im)
 {
-	return 0;
+	int contrast = 0;
+	int mini = *std::min_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	int maxi = *std::max_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	contrast = maxi - mini;
+
+	return contrast;
 }
 
-winrt::Windows::Foundation::IAsyncAction Functions::luminance(Image& im, Image& imOut)
+int Functions::luminance(Image& im)
 {
-	co_return;
+	double sum = std::accumulate(im.m_pixelData.begin(), im.m_pixelData.end(), 0);
+	double lum = sum / im.m_pixelData.size();
+	return lum;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::gaussFilter(Image& im, Image& imOut)
@@ -335,21 +392,77 @@ winrt::Windows::Foundation::IAsyncAction Functions::otsuBinarization(Image& im, 
 
 winrt::Windows::Foundation::IAsyncAction Functions::brightness(Image& im, Image& imOut, int level)
 {
+	imOut.initialize(im.m_rows, im.m_cols, im.m_depth);
+	int pixel = 0;
+	int val = 0;
+
+	for (int i = 0; i < im.m_rows; i++)
+	{
+		for (int j = 0; j < im.m_cols; j++)
+			imOut.setPixelVal(i, j, max(0, min(255, im.getPixelVal(i, j) + level)));
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::filtering(Image& im, Image& imOut, double r, double g, double b)
 {
+	imOut.initialize(im.m_rows, im.m_cols, im.m_depth);
+	int val = 0;
+	int pixel = 0;
+
+	for (int i = 0; i < im.m_rows; i++)
+	{
+		for (int j = 0; j < im.m_cols; j++)
+		{
+			imOut.setPixelValRGB(i, j, 0, min(255, im.getPixelValRGB(i, j, 0) * r));
+			imOut.setPixelValRGB(i, j, 1, min(255, im.getPixelValRGB(i, j, 1) * g));
+			imOut.setPixelValRGB(i, j, 2, min(255, im.getPixelValRGB(i, j, 2) * b));
+		}
+	}
+
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::linearContrastSaturation(Image& im, Image& imOut, int sMin, int sMax)
 {
+	auto minPixel = *std::min_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	auto maxPixel = *std::max_element(im.m_pixelData.begin(), im.m_pixelData.end());
+	if ((sMin > sMax) || sMin < minPixel || sMax > maxPixel)
+		co_return; // Report invalid saturation values
+
+	imOut.initialize(im.m_rows, im.m_cols, im.m_depth);
+
+	int pixel = 0;
+	int val = 0;
+
+	for (int i = 0; i < im.m_rows; i++)
+	{
+		for (int j = 0; j < im.m_cols; j++)
+		{
+			pixel = im.getPixelVal(i, j);
+			val = 255 * (pixel - sMin) / (sMax - sMin);
+			imOut.setPixelVal(i, j, val);
+		}
+	}
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::scalingNN(Image& im, Image& imOut, double xscale, double yscale)
 {
+	int destW = im.m_cols * xscale;
+	int destH = im.m_rows * yscale;
+
+	imOut.initialize(destH, destW, im.m_depth);
+
+	for (int i = 0; i < destH; i++)
+	{
+		for (int j = 0; j < destW; j++)
+		{
+			imOut.setPixelValRGB(i, j, 0, im.getPixelValRGB(i / yscale, j / xscale, 0));
+			imOut.setPixelValRGB(i, j, 1, im.getPixelValRGB(i / yscale, j / xscale, 1));
+			imOut.setPixelValRGB(i, j, 2, im.getPixelValRGB(i / yscale, j / xscale, 2));
+		}
+	}
 	co_return;
 }
 
