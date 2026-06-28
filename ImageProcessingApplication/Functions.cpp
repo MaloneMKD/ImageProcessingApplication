@@ -41,11 +41,6 @@ Image Functions::readImage(const char fname[])
 	return retImg;
 }
 
-winrt::Windows::Foundation::IAsyncAction Functions::merge(Image& im1, Image& im2, Image& imOut)
-{
-	co_return;
-}
-
 winrt::Windows::Foundation::IAsyncAction Functions::logicAnd(Image& im1, Image& im2, Image& imOut)
 {
 	// Images must have the same depth rows and columns
@@ -196,10 +191,6 @@ winrt::Windows::Foundation::IAsyncAction Functions::subtraction(Image& im1, Imag
 	co_return;
 }
 
-winrt::Windows::Foundation::IAsyncAction Functions::multiplication(Image& im, Image& imOut, int factor)
-{
-	co_return;
-}
 
 winrt::Windows::Foundation::IAsyncAction Functions::linearContrast(Image& im, Image& imOut)
 {
@@ -280,46 +271,109 @@ int Functions::luminance(Image& im)
 
 winrt::Windows::Foundation::IAsyncAction Functions::gaussFilter(Image& im, Image& imOut)
 {
+	std::vector<double> kern = { 1,  2,  1,
+								 2,  4,  2,
+								 1,  2,  1 };
+
+	convolution(im, imOut, kern, 3, 16);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::smoothingFilter(Image& im, Image& imOut)
 {
+	std::vector<double> kern = { 1,  1,  1,
+								 1,  1,  1,
+								 1,  1,  1 };
+
+	convolution(im, imOut, kern, 3, 9);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::sharpen(Image& im, Image& imOut)
 {
+	std::vector<double> kern = { 1.0 / 4,  10 / 2,  1.0 / 4,
+								 1.0 / 2,  1.0,     1.0 / 2,
+								 1.0 / 4,  1.0 / 2, 1.0 / 4 };
+
+	convolution(im, imOut, kern, 3, 4);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::edgeDetect(Image& im, Image& imOut)
 {
+	std::vector<double> kern = { 0,  1,  0,
+								 1,  -4, 1,
+								 0,  1,  0 };
+
+	convolution(im, imOut, kern, 3, 1);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::robertFilter(Image& im, Image& imOut)
 {
+	std::vector<double> kern1 = { 1,   0,
+								  0,  -1 };
+
+	std::vector<double> kern2 = {  0,  1,
+								  -1,  0 };
+
+	Image temp;
+	convolution2D(im, temp, kern1, 2, 1);
+	convolution2D(temp, imOut, kern2, 2, 1);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::prewittFilter(Image& im, Image& imOut)
 {
+	std::vector<double> kern1 = { -1,   -1,  -1,
+								   0,    0,   0,
+								   1,    1,   1 };
+
+	std::vector<double> kern2 = { -1,   0,  1,
+								  -1,   0,  1,
+								  -1,   0,  1 };
+
+	Image temp;
+	convolution(im, temp, kern1, 3, 1);
+	convolution(temp, imOut, kern2, 3, 1);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::sobelFilter(Image& im, Image& imOut)
 {
+	std::vector<double> kern1 = { -1,   -2,  -1,
+								   0,    0,   0,
+								   1,    2,   1 };
+
+	std::vector<double> kern2 = { -1,   0,  1,
+								  -2,   0,  2,
+								  -1,   0,  1 };
+
+	Image temp;
+	convolution(im, temp, kern1, 3, 1);
+	convolution(temp, imOut, kern2, 3, 1);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::laplacienConvo(Image& im, Image& imOut)
 {
+	std::vector<double> kern = { 1,   1,  1,
+								 1,  -8,  1,
+								 1,   1,  1 };
+
+	convolution(im, imOut, kern, 3, 1);
 	co_return;
 }
 
 winrt::Windows::Foundation::IAsyncAction Functions::erosion(Image& im, Image& imOut)
 {
+	int thres = 0;
+	Image binImage(im.m_rows, im.m_cols, im.m_depth);
+	otsuBinarization(im, binImage, thres);
+	std::vector<double> kern = { 0, 0, 0,
+								 0, 1, 0,
+								 0, 0, 0 };
+	convolution(binImage, imOut, kern, 3, 3);
 	co_return;
 }
 
@@ -479,6 +533,50 @@ void Functions::thresholdVal(int threashold, Image& im, Image& outImg)
 			outImg.setPixelVal(i, j, val);
 		}
 	}
+}
+
+void Functions::convolution(Image& im, Image& outImg, std::vector<double>& kernel, int kSize, int norm)
+{
+	outImg.initialize(im.m_rows, im.m_cols, im.m_depth);
+	int kCenter = kSize / 2;
+	double sum = 0;
+
+	for (int i = 0; i < im.m_rows; i++) // Image row
+	{
+		for (int j = 0; j < im.m_cols; j++) // Image column
+		{
+			for (int n = 0; n < kSize; n++) // Kernel row
+			{
+				for (int m = 0; m < kSize; m++) // Kernel column
+				{
+					// Check row bounds
+					if ((i + n - kCenter < 0) || (i + n - kCenter >= im.m_rows))
+						break;
+					// Check column bounds
+					if ((j + m - kCenter < 0) || (j + m - kCenter >= im.m_cols))
+						continue;
+
+					sum += im.getPixelVal(i + n - kCenter, j + m - kCenter) * kernel[n * kSize + m];
+				}
+			}
+
+			double val = sum / norm;
+			val = val < 0 ? 0 : double(min((int)val, 255));
+			outImg.setPixelVal(i, j, (int)val);
+			sum = 0;
+		}
+	}
+}
+
+void Functions::convolution2D(Image& im, Image& outImg, std::vector<double>& kernel, int kSize, int norm)
+{
+	std::vector<double> kern(kSize * kSize, 0);
+	for (int i = 0; i < kSize; i++) // Kernel row
+	{
+		for (int j = 0; j < kSize; j++) // Kernel column
+			kern[i * kSize + j] = kernel[(kSize - i - 1) * kSize + (kSize - j - 1)];
+	}
+	convolution(im, outImg, kern, kSize, norm);
 }
 
 int Functions::getOtsuBinarizationThreshold(Image& im)

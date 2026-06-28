@@ -42,7 +42,7 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
     // Reveal controls for specific processes
 	winrt::hstring selectedProcess = ProcessComboBox().SelectedItem().as<winrt::Microsoft::UI::Xaml::Controls::ComboBoxItem>().Content().as<winrt::hstring>();
 
-    if (selectedProcess == L"Merge" || selectedProcess == L"Logic AND" || selectedProcess == L"Logic OR" || selectedProcess == L"Logic XOR" || 
+    if (selectedProcess == L"Logic AND" || selectedProcess == L"Logic OR" || selectedProcess == L"Logic XOR" || 
 		selectedProcess == L"Logic NAND" || selectedProcess == L"Addition" || selectedProcess == L"Subtraction")
     {
 		FileInput1Panel().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
@@ -93,25 +93,6 @@ void winrt::ImageProcessingApplication::implementation::MainWindow::ProcessCombo
 	else if (selectedProcess == L"Brightness")
 	{
 		NumberInput1().Header(winrt::box_value(L"Brightness Level"));
-		FileInput1Panel().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-		ArgumentsBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-		NumberInput1().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-
-		// Show only one input image panel
-		if (ShowInputImages().IsChecked())
-		{
-			Input1ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-			Input2ImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
-			OutputImageBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
-			ImageGrid().ColumnDefinitions().GetAt(0).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-			ImageGrid().ColumnDefinitions().GetAt(1).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(0, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-			ImageGrid().ColumnDefinitions().GetAt(2).Width(winrt::Microsoft::UI::Xaml::GridLengthHelper::FromValueAndType(1, winrt::Microsoft::UI::Xaml::GridUnitType::Star));
-		}
-		m_bTwoImageInput = false;
-	}
-	else if (selectedProcess == L"Multiplication")
-	{
-		NumberInput1().Header(winrt::box_value(L"Multiplication Factor"));
 		FileInput1Panel().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 		ArgumentsBorder().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 		NumberInput1().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
@@ -457,10 +438,12 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Gauss Filter")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::gaussFilter(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Smoothing Filter")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::smoothingFilter(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Histogram Equalization")
@@ -470,30 +453,37 @@ winrt::Windows::Foundation::IAsyncAction winrt::ImageProcessingApplication::impl
 	}
 	else if (selectedProcess == L"Sharpen")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::sharpen(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Edge Detect")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::edgeDetect(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Robert Filter")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::robertFilter(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Prewitt Filter")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::prewittFilter(m_image1, imgOut);
 	}
-	else if (selectedProcess == L"Sorbel Filter")
+	else if (selectedProcess == L"Sobel Filter")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::sobelFilter(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Laplace Convolution")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::laplacienConvo(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"Erosion")
 	{
+		m_displayDepth = DISPLAY_DEPTH::GRAYSCALE;
 		co_await Functions::erosion(m_image1, imgOut);
 	}
 	else if (selectedProcess == L"H-Flip")

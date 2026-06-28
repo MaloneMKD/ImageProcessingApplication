@@ -9,14 +9,12 @@ class Functions
 {
 public:
 	static Image readImage(const char fname[]);
-	static winrt::Windows::Foundation::IAsyncAction merge(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction logicAnd(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction logicNand(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction logicOr(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction logicXor(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction addition(Image& im1, Image& im2, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction subtraction(Image& im1, Image& im2, Image& imOut);
-	static winrt::Windows::Foundation::IAsyncAction multiplication(Image& im, Image& imOut, int factor);
 
 	static winrt::Windows::Foundation::IAsyncAction linearContrast(Image& im, Image& imOut);
 	static winrt::Windows::Foundation::IAsyncAction histogramEqualization(Image& im, Image& imOut);
@@ -50,5 +48,7 @@ public:
 private:
 	static int getOtsuBinarizationThreshold(Image& im);
 	static void thresholdVal(int threshold, Image& im, Image& outImg);
+	static void convolution(Image& im, Image& outImg, std::vector<double>& kernel/*Row Major*/, int kSize, int norm);
+	static void convolution2D(Image& im, Image& outImg, std::vector<double>& kernel/*Row Major*/, int kSize, int norm);
 };
 

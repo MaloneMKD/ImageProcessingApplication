@@ -31,20 +31,21 @@
             <ComboBox x:Name="ProcessComboBox" Grid.Row="1" Grid.Column="0" Header="Process" FontSize="12" SelectionChanged="ProcessComboBox_SelectionChanged" MinWidth="100"
                       Margin="10, 0" VerticalAlignment="Bottom">
                 <ComboBox.Items>
-                    <ComboBoxItem>Merge</ComboBoxItem>
+                    <ComboBoxItem>ScalingNN</ComboBoxItem>
+                    <ComboBoxItem>H-Flip</ComboBoxItem>
+                    <ComboBoxItem>V-Flip</ComboBoxItem>
+                    <ComboBoxItem>R-Rotate</ComboBoxItem>
+                    <ComboBoxItem>L-Rotate</ComboBoxItem>
                     <ComboBoxItem>Logic AND</ComboBoxItem>
                     <ComboBoxItem>Logic NAND</ComboBoxItem>
                     <ComboBoxItem>Logic OR</ComboBoxItem>
                     <ComboBoxItem>Logic XOR</ComboBoxItem>
                     <ComboBoxItem>Addition</ComboBoxItem>
                     <ComboBoxItem>Subtraction</ComboBoxItem>
-                    <ComboBoxItem>Multiplication</ComboBoxItem>
+                    <ComboBoxItem>Histogram Equalization</ComboBoxItem>
                     <ComboBoxItem>Linear Contrast</ComboBoxItem>
-                    <ComboBoxItem>Calculate Contrast</ComboBoxItem>
-                    <ComboBoxItem>Luminance</ComboBoxItem>
                     <ComboBoxItem>Gauss Filter</ComboBoxItem>
                     <ComboBoxItem>Smoothing Filter</ComboBoxItem>
-                    <ComboBoxItem>Histogram Equalization</ComboBoxItem>
                     <ComboBoxItem>Sharpen</ComboBoxItem>
                     <ComboBoxItem>Edge Detect</ComboBoxItem>
                     <ComboBoxItem>Robert Filter</ComboBoxItem>
@@ -52,15 +53,12 @@
                     <ComboBoxItem>Sobel Filter</ComboBoxItem>
                     <ComboBoxItem>Laplace Convolution</ComboBoxItem>
                     <ComboBoxItem>Erosion</ComboBoxItem>
-                    <ComboBoxItem>H-Flip</ComboBoxItem>
-                    <ComboBoxItem>V-Flip</ComboBoxItem>
-                    <ComboBoxItem>R-Rotate</ComboBoxItem>
-                    <ComboBoxItem>L-Rotate</ComboBoxItem>
                     <ComboBoxItem>Otsu Binarization</ComboBoxItem>
                     <ComboBoxItem>Brightness</ComboBoxItem>
                     <ComboBoxItem>Filtering</ComboBoxItem>
                     <ComboBoxItem>Linear Contrast Saturation</ComboBoxItem>
-                    <ComboBoxItem>ScalingNN</ComboBoxItem>
+                    <ComboBoxItem>Luminance</ComboBoxItem>
+                    <ComboBoxItem>Calculate Contrast</ComboBoxItem>
                 </ComboBox.Items>
             </ComboBox>
 
