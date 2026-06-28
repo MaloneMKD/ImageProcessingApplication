@@ -69,3 +69,8 @@ scalingNN (nearest-neighbor scaling)
 
 ### 🔹 Thresholding & binarization
 otsuBinarization
+
+## Building
+- Uses vcpkg in manifest mode
+- WinUI3 C++/Winrt
+- Clone repo and build in VS2022 / 2026
