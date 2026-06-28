@@ -1,6 +1,9 @@
 # Image Processing in C++ / WinUI 3
 This project is a collection of fundamental image processing techniques implemented in raw C++ without external libraries, wrapped in a WinUI 3 application. It was developed as part of my formal training in image processing.
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5bc8bcd8-2299-4508-b0ce-f2bf9fca8a8b" />
+
+
 ## 📖 Features
 The application supports a wide range of operations:
 
